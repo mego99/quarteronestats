@@ -1,11 +1,10 @@
 @font-face {
-  font-family: 'Theinhardt';
-  src: url("../fonts/theinhardtreg-webfont.woff") format("woff");
-}
-
-@font-face {
   font-family: 'Theinhardt Bold';
-  src: url("../fonts/theinhardtbold-webfont.woff") format("woff");
+  src: url("fonts/theinhardtbold-webfont.woff") format("woff");
+}
+@font-face {
+  font-family: 'Theinhardt';
+  src: url("fonts/theinhardtreg-webfont.woff") format("woff");
 }
 
 body {
