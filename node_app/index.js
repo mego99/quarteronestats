@@ -14,10 +14,13 @@ h.get(url, res => {
   res.on("data", data => {
     body += data;
   });
-  res.on('end',() => {
+  res.on('end',(key,val) => {
     body = JSON.parse(body);
-    jf.writeFile(file, body, function(err) {
-      if (err) console.error(err);
-    })
+    jf.writeFile(file, body,
+      {replacer: ['results','school.name','2013.cost.attendance.academic_year','2013.earnings.10_yrs_after_entry.working_not_enrolled.mean_earnings']},
+      function(err) {
+        if (err) console.error(err);
+      }
+    )
   })
 });
