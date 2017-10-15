@@ -4,13 +4,13 @@ firstScatter.svg = d3.select('#first-scatter')
     .attr('width',850)
     .attr('height',620);
 
-d3.json('../node_app/data.json',
+d3.json('node_app/data.json',
 (error, data) => {
   if (error) return console.error(error);
   console.log(data);
 
   firstScatter.x = d3.scaleLinear()
-    .domain(d3.extent(data,(d)=>{return d.admit}))
+    .domain(d3.extent(data,(d)=>{return d.act}))
     .range([50,800]);
 
   firstScatter.y = d3.scaleLinear()
@@ -35,7 +35,7 @@ d3.json('../node_app/data.json',
       .enter()
         .append('circle')
         .attr('transform',function(d) {
-          let x = firstScatter.x(d.admit);
+          let x = firstScatter.x(d.act);
           let y = firstScatter.y(d.earnings);
           return "translate(" + x + ',' + y + ")"
         })
