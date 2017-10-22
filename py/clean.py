@@ -20,31 +20,41 @@ sc['earningslog'] = sc['earnings'].apply(lambda x:
     math.log(x)
 )
 
-def regressionLine(x):
-    return b0 + (b1 * x)
 
-def makeScatterPlot(explanatory,response,lineBool,xTitle,yTitle,groupBool): #explanatory and response must be Pandas Series
-    model = sm.OLS(sc[explanatory],sc[response],missing='drop')
+
+darkblue='#4148e8'
+lightblue='#6f63f2'
+red='#ec5237'
+green='#43d1cd'
+colors = {1:red,2:lightblue,3:green}
+
+def makeScatterPlot(x,y,lineBool,xTitle,yTitle,groupBool): #explanatory and response must be column names
+    model = sm.OLS(x,y,missing='drop')
     model = model.fit()
     print(model.summary())
 
     r = math.sqrt(model.rsquared)
-    sx = sc[explanatory].std()
-    sy = sc[response].std()
-    xbar = sc[explanatory].mean()
-    ybar = sc[response].mean()
+    sx = x.std()
+    sy = y.std()
+    xbar = x.mean()
+    ybar = y.mean()
     b1 = r * (sy / sx)
     b0 = ybar - (b1 * xbar)
+
+    def regressionLine(x):
+        return b0 + (b1 * x)
+
     if (groupBool):
-        plt.scatter(sc[explanatory],sc[response],1,c=sc['ownership'].apply(lambda x: colors[x]))
+        plt.scatter(x,y,1,c=sc['ownership'].apply(lambda x: colors[x]))
     else:
-        plt.scatter(sc[explanatory],sc[response],1,'#4148e8')
+        plt.scatter(x,y,1,green)
     if (lineBool):
-        plt.plot(sc[explanatory], regressionLine(sc[explanatory]), c='#079799', aa=True)
+        plt.plot(x, regressionLine(x), c='#079799', aa=True)
     plt.xlabel(xTitle, size='smaller')
     plt.ylabel(yTitle, size='smaller')
 
-makeScatterPlot('cost','earnings',False,'Cost of Attendance ($)','Earnings, 10 Years After Entry into Institution ($)',False)
+makeScatterPlot(sc[sc["ownership"] == 3]["costlog"],sc[sc["ownership"] == 3]["earningslog"],True,'Log of Cost of Attendance ($)','Log of Earnings, 10 Years After Entry into Institution ($)',False)
 
-plt.title('Cost vs Earnings in US Higher Ed Institutions', size='smaller')
-plt.savefig('test.png', dpi=150, bbox_inches='tight')
+
+plt.title('Cost vs Earnings in US Higher Ed Institutions (Private For-profit)', size='smaller')
+plt.savefig('privatefp-line.png', dpi=150, bbox_inches='tight')
