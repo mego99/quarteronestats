@@ -20,27 +20,31 @@ sc['earningslog'] = sc['earnings'].apply(lambda x:
     math.log(x)
 )
 
-model = sm.OLS(sc.costlog,sc.earningslog,missing='drop')
-model = model.fit()
-print(model.summary())
-
-r = math.sqrt(model.rsquared)
-sx = sc['costlog'].std()
-sy = sc['earningslog'].std()
-xbar = sc['costlog'].mean()
-ybar = sc['earningslog'].mean()
-b1 = r * (sy / sx)
-b0 = ybar - (b1 * xbar)
-
-
 def regressionLine(x):
     return b0 + (b1 * x)
 
-colors = {1:'#ec5237',2:'#5346e7',3:'#43d1cd'}
+def makeScatterPlot(explanatory,response,lineBool,xTitle,yTitle,groupBool): #explanatory and response must be Pandas Series
+    model = sm.OLS(sc[explanatory],sc[response],missing='drop')
+    model = model.fit()
+    print(model.summary())
 
-plt.scatter(sc.costlog,sc.earningslog,1,c=sc['ownership'].apply(lambda x: colors[x]))
-# plt.plot(sc.costlog, regressionLine(sc.costlog), c='#079799', aa=True)
-plt.xlabel('Log of Cost of Attendance ($)', size='smaller')
-plt.ylabel('Log of Earnings, 10 Years After Entry into Institution ($)', size='smaller')
+    r = math.sqrt(model.rsquared)
+    sx = sc[explanatory].std()
+    sy = sc[response].std()
+    xbar = sc[explanatory].mean()
+    ybar = sc[response].mean()
+    b1 = r * (sy / sx)
+    b0 = ybar - (b1 * xbar)
+    if (groupBool):
+        plt.scatter(sc[explanatory],sc[response],1,c=sc['ownership'].apply(lambda x: colors[x]))
+    else:
+        plt.scatter(sc[explanatory],sc[response],1,'#4148e8')
+    if (lineBool):
+        plt.plot(sc[explanatory], regressionLine(sc[explanatory]), c='#079799', aa=True)
+    plt.xlabel(xTitle, size='smaller')
+    plt.ylabel(yTitle, size='smaller')
+
+makeScatterPlot('cost','earnings',False,'Cost of Attendance ($)','Earnings, 10 Years After Entry into Institution ($)',False)
+
 plt.title('Cost vs Earnings in US Higher Ed Institutions', size='smaller')
-plt.savefig('ownership-grouped.png', dpi=150, bbox_inches='tight')
+plt.savefig('test.png', dpi=150, bbox_inches='tight')
