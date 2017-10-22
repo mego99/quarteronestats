@@ -11,12 +11,14 @@
   <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_CHTML"></script>
   <script src="scripts/d3.v4.0.0-rc.2.min.js"></script>
   <!-- <script src="scripts/prism.js"></script> -->
-  <link rel="stylesheet" href="styles/color-brewer.css">
+  <link rel="stylesheet" href="styles/foundation.css">
   <script src="styles/highlight.pack.js"></script>
   <script>hljs.initHighlightingOnLoad();</script>
 </head>
 <body>
-  <h1>Quarter One Project</h1>
+  <h1>AP Stats Quarter One Project</h1>
+  <span><a href="https://github.com/mego99/quarteronestats">Github</a></span>
+  <h2>1: Data Selection and Initial Exploration</h2>
   <p>
     As a soon-to-be college freshman (hopefully!),
     I've been spending a fair share of my time scouring university websites, scanning colorful pamphlets, and making big decisions.
@@ -37,8 +39,9 @@
     This means that in order to harness the full potential of this dataset, I had to change my method.
     I decided to try working with Pandas, a data-handling library for Python.
   </p>
+  <h2>2: Working with a Larger Dataset</h2>
   <pre>
-    <code class="language-python">
+    <code>
       import pandas as pd
       from pandas.io.json import json_normalize as jn
       import requests
@@ -75,7 +78,7 @@
   </p>
   <img class="plot" src="static/original.png"/>
   <p>
-    <a href="http://www.statsmodels.org/dev/index.html">Statsmodels</a> has a handy <a href="http://www.statsmodels.org/dev/index.html">OLS</a>
+    <a href="http://www.statsmodels.org/dev/index.html">Statsmodels</a> has a handy <a href="http://www.statsmodels.org/dev/generated/statsmodels.regression.linear_model.OLS.html">OLS</a>
     (ordinary least squares) regression calculator, so it told me the R-squared value, 84.9%.
     This value, coupled with the clearly exponential shape of the scatterplot, led me to believe that the data needed to be re-expressed
     to fit a linear regression.
@@ -105,6 +108,70 @@
       ==============================================================================
     </code>
   </pre>
+  <h2>3: Linear Regression Line</h2>
+  <p>
+    But first, before any re-expression, I figured it would be useful to draw a linear regression line on the scatterplot.
+    It was really easy to convert the formulas we used in class into code:
+  </p>
+  <pre>
+    <code>
+      r = math.sqrt(model.rsquared)
+      sx = x.std()
+      sy = y.std()
+      xbar = x.mean()
+      ybar = y.mean()
+      b1 = r * (sy / sx)
+      b0 = ybar - (b1 * xbar)
 
+      def regressionLine(x):
+          return b0 + (b1 * x)
+
+      #later...
+      plt.plot(x, regressionLine(x), c='green', aa=True)
+    </code>
+  </pre>
+  <img class="plot" src="static/original-line.png"/>
+  <p>
+    r: 0.92 <br />
+    Xs: 12997.65<br />
+    Ys: 13047.42<br />
+    Xbar: 24484.86<br />
+    Ybar: 40402.45<br />
+    b1: 0.93<br />
+    b0: 17750.13<br />
+    y hat = 17750.13 + 0.93 * x
+  </p>
+  <h2>4: Re-Expression</h2>
+  <img src="static/log.png" class="plot"/>
+  <pre>
+    <code>
+      OLS Regression Results
+==============================================================================
+Dep. Variable:                costlog   R-squared:                       0.998
+Model:                            OLS   Adj. R-squared:                  0.998
+Method:                 Least Squares   F-statistic:                 1.632e+06
+Date:                Sun, 22 Oct 2017   Prob (F-statistic):               0.00
+Time:                        13:27:34   Log-Likelihood:                -2129.5
+No. Observations:                3384   AIC:                             4261.
+Df Residuals:                    3383   BIC:                             4267.
+Df Model:                           1
+Covariance Type:            nonrobust
+===============================================================================
+          coef    std err          t      P>|t|      [0.025      0.975]
+-------------------------------------------------------------------------------
+earningslog     0.9438      0.001   1277.501      0.000       0.942       0.945
+==============================================================================
+Omnibus:                      280.598   Durbin-Watson:                   1.717
+Prob(Omnibus):                  0.000   Jarque-Bera (JB):               90.181
+Skew:                          -0.032   Prob(JB):                     2.62e-20
+Kurtosis:                       2.203   Cond. No.                         1.00
+==============================================================================
+    </code>
+  </pre>
+  <p>
+    With this new graph, however, I noticed that the data seemed to be in two distinct clusters.
+    Could it be the difference between public and private schools?
+  </p>
+  <img class="plot" src="static/ownership-grouped.png" />
 </body>
 </html>
