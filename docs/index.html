@@ -252,33 +252,6 @@ Kurtosis:                       2.203   Cond. No.                         1.00
       sc['earningslog'] = sc['earnings'].apply(lambda x:
           math.log(x)
       )
-      sc['earningssq'] = sc['earnings'].apply(lambda x:
-          x*x
-      )
-      sc['earningssqrt'] = sc['earnings'].apply(lambda x:
-          math.sqrt(x)
-      )
-      sc['sqearningslog'] = sc['earningslog'].apply(lambda x:
-          x*x
-      )
-      sc['sqcostlog'] = sc['costlog'].apply(lambda x:
-          x * x
-      )
-      sc['earningslogsq'] = sc['earnings'].apply(lambda x:
-          math.log(x*x)
-      )
-      sc['costlogsqrt'] = sc['cost'].apply(lambda x:
-          math.log(math.sqrt(x))
-      )
-      sc['earningsloglog'] = sc['earningslog'].apply(lambda x:
-          math.log(x)
-      )
-      sc['sqrtcostlog'] = sc['costlog'].apply(lambda x:
-          math.sqrt(x)
-      )
-      sc['sqrtearningslog'] = sc['earningslog'].apply(lambda x:
-          math.sqrt(x)
-      )
 
       darkblue='#4148e8'
       lightblue='#6f63f2'
