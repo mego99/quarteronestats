@@ -14,6 +14,7 @@
   <link rel="stylesheet" href="styles/foundation.css">
   <script src="styles/highlight.pack.js"></script>
   <script>hljs.initHighlightingOnLoad();</script>
+  <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_CHTML"></script>
 </head>
 <body>
   <h1>AP Stats Quarter One Project</h1>
@@ -132,16 +133,21 @@
   </pre>
   <img class="plot" src="static/original-line.png"/>
   <p>
-    r: 0.92 <br />
-    Xs: 12997.65<br />
-    Ys: 13047.42<br />
-    Xbar: 24484.86<br />
-    Ybar: 40402.45<br />
-    b1: 0.93<br />
-    b0: 17750.13<br />
-    y hat = 17750.13 + 0.93 * x
+    Here's a summary of the above variables along with this regression line.
+    $$r: 0.92 $$
+    $$X_s: 12997.65$$
+    $$Y_s: 13047.42$$
+    $$\overline x: 24484.86$$
+    $$\overline y: 40402.45$$
+    $$b_1: 0.93$$
+    $$b_0: 17750.13$$
+    $$\widehat{earnings} = 17750.13 + 0.93(cost)$$
   </p>
   <h2>4: Re-Expression</h2>
+  <p>
+    I ended up taking the log of both variables to re-express my data.
+    This gave me a much better result than before, although still somewhat curved.
+  </p>
   <img src="static/log.png" class="plot"/>
   <pre>
     <code>
@@ -169,9 +175,99 @@ Kurtosis:                       2.203   Cond. No.                         1.00
     </code>
   </pre>
   <p>
+    $$r: 0.99 $$
+    $$X_s: 0.53$$
+    $$Y_s: 0.30$$
+    $$\overline x: 9.97$$
+    $$\overline y: 10.56$$
+    $$b_1: 0.56$$
+    $$b_0: 4.97$$
+    $$\widehat{\text{log}(earnings)} = 4.97 + 0.56(\text{log}(cost))$$
     With this new graph, however, I noticed that the data seemed to be in two distinct clusters.
-    Could it be the difference between public and private schools?
+  </p>
+  <h2>5: Investigating Clusters</h2>
+  <p>
+    My first hunch was to separate out schools by ownership (public, private).
+    So I went back into my <code>get.py</code> and retrieved the data with that additional field.
+    Then I color-coded the scatterplot. Red = public, Green = Private For-profit, Blue = Private Not-for-profit.
   </p>
   <img class="plot" src="static/ownership-grouped.png" />
+  <p>
+    This shows that there are clear differences in each of the groups, and separating them out into their own individual plots could be insightful.
+  </p>
+  <div class="three-plots">
+    <img class="three" src="static/public.png" />
+    <img class="three" src="static/privatenp.png" />
+    <img class="three" src="static/privatefp.png" />
+  </div>
+  <h2>Conclusion</h2>
+  <h2>A: Final <code>clean.py</code></h2>
+  <pre>
+    <code>
+      import pandas as pd
+      import matplotlib.pyplot as plt
+      from pandas.core import datetools
+      import statsmodels.api as sm
+      import math
+
+      sc = pd.read_pickle('data.pkl')
+      print(sc.columns)
+      sc.columns = ['index','admitrate','satscores','mediandebt','cost','earnings','retention','schoolname','ownership']
+      sc.dropna()
+
+      #re-expression
+      sc['costsqrt'] = sc['cost'].apply(lambda x:
+          math.sqrt(x)
+      )
+      sc['costlog'] = sc['cost'].apply(lambda x:
+          math.log(x)
+      )
+      sc['earningslog'] = sc['earnings'].apply(lambda x:
+          math.log(x)
+      )
+
+      #color variables
+      darkblue='#4148e8'
+      lightblue='#6f63f2'
+      red='#ec5237'
+      green='#43d1cd'
+      colors = {1:red,2:lightblue,3:green}
+
+      #define function to make plot generation simpler
+      def makeScatterPlot(x,y,lineBool,xTitle,yTitle,groupBool): #x and y must be pandas Series, eg dataframe['column_name']
+          model = sm.OLS(x,y,missing='drop')
+          model = model.fit()
+          print(model.summary())
+
+          r = math.sqrt(model.rsquared)
+          sx = x.std()
+          sy = y.std()
+          xbar = x.mean()
+          ybar = y.mean()
+          b1 = r * (sy / sx)
+          b0 = ybar - (b1 * xbar)
+          print(r, sx, sy, xbar, ybar, b1, b0)
+
+          def regressionLine(x): #define a simple a + bx function
+              return b0 + (b1 * x)
+
+          #if you need to color-code by group
+          if (groupBool):
+              plt.scatter(x,y,1,c=sc['ownership'].apply(lambda x: colors[x]))
+          else:
+              plt.scatter(x,y,1,green)
+
+          #if you want a regression line
+          if (lineBool):
+              plt.plot(x, regressionLine(x), c='#079799', aa=True)
+          plt.xlabel(xTitle, size='smaller')
+          plt.ylabel(yTitle, size='smaller')
+
+      makeScatterPlot(sc['costlog'],sc['earningslog'],True,'Log of Cost of Attendance ($)','Log of Earnings, 10 Years After Entry into Institution ($)',False)
+
+      plt.title('Cost vs Earnings in US Higher Ed Institutions', size='smaller')
+      plt.savefig('file.png', dpi=150, bbox_inches='tight') #save to file
+    </code>
+  </pre>
 </body>
 </html>

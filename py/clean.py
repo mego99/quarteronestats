@@ -55,7 +55,7 @@ def makeScatterPlot(x,y,lineBool,xTitle,yTitle,groupBool): #explanatory and resp
     plt.ylabel(yTitle, size='smaller')
 
 # makeScatterPlot(sc[sc["ownership"] == 3]["costlog"],sc[sc["ownership"] == 3]["earningslog"],True,'Log of Cost of Attendance ($)','Log of Earnings, 10 Years After Entry into Institution ($)',False)
-makeScatterPlot(sc['cost'],sc['earnings'],True,'Log of Cost of Attendance ($)','Log of Earnings, 10 Years After Entry into Institution ($)',False)
+makeScatterPlot(sc['costlog'],sc['earningslog'],True,'Log of Cost of Attendance ($)','Log of Earnings, 10 Years After Entry into Institution ($)',False)
 
 plt.title('Cost vs Earnings in US Higher Ed Institutions (Private For-profit)', size='smaller')
 # plt.savefig('privatefp-line.png', dpi=150, bbox_inches='tight')

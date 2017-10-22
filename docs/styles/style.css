@@ -35,3 +35,13 @@ a:hover {
   color:#6f63f2;
   transition-duration: 0.2s;
 }
+span {
+  text-align: left!important;
+}
+img.three {
+  width:25vw;
+}
+div.three-plots {
+  margin: auto;
+  text-align: center;
+}
