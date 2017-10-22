@@ -5,12 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <link rel="stylesheet" type="text/css" href="styles/style.css">
-  <link rel="stylesheet" type="text/css" href="styles/prism.css">
+  <!-- <link rel="stylesheet" type="text/css" href="styles/prism.css"> -->
   <script src="https://d3js.org/d3.v4.min.js"></script>
   <title>Quater One Project</title>
   <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_CHTML"></script>
   <script src="scripts/d3.v4.0.0-rc.2.min.js"></script>
-  <script src="scripts/prism.js"></script>
+  <!-- <script src="scripts/prism.js"></script> -->
+  <link rel="stylesheet" href="styles/color-brewer.css">
+  <script src="styles/highlight.pack.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
 </head>
 <body>
   <h1>Quarter One Project</h1>
@@ -20,12 +23,20 @@
     When I stumbled upon the <a href="https://collegescorecard.ed.gov/data/documentation/">US College Scorecard</a>, I knew I had found my goldmine.
     This data, collected and compiled by the US Department of Education, is an extremely comprehensive and well-documented dataset freely available to
     the public. It contains information on colleges, their student body, cost of attendance, financial aid, and earnings after graduation.
-
-
+  </p>
+  <p>
+    At first I tried to work through the raw downloaded data, but it became evident very quickly that this was too big of a dataset to handle.
+    Luckily, an <a href="https://github.com/RTICWDT/open-data-maker/blob/master/API.md">API</a> is also provided,
+    which can return only the results of specific queries. This API returns only a hundred data points per query.
+    Below is a scatterplot I made, with the top 100 data points sorted by descending earnings after graduation, using <a href="https://github.com/d3/d3">D3</a>.
   </p>
   <svg id="first-scatter"></svg>
   <script src="charts.js"></script>
-
+  <p>
+    D3 is SVG-based, so performance is directly proportional to the number of elements (and in this case, data points) generated.
+    This means that in order to harness the full potential of this dataset, I had to change my method.
+    I decided to try working with Pandas, a data-handling library for Python.
+  </p>
 
   <pre>
     <code class="language-python">
@@ -36,11 +47,13 @@
       import math
       import matplotlib.pyplot as plt
 
+      #get data through API in order to compute the number of iterations necessary
       url = "https://api.data.gov/ed/collegescorecard/v1/schools.json?api_key=3hZTlIbHmdMRcRWJ3NxdG8AvQPoW4Mdbilkm13At&school.operating=1&_sort=2013.earnings.10_yrs_after_entry.working_not_enrolled.mean_earnings:desc&_per_page=1&_page= %s &2013.earnings.10_yrs_after_entry.working_not_enrolled.mean_earnings__range=0..&2013.cost.attendance.academic_year__range=0..&fields=school.name"%(0)
       print("retrieving data count...")
       j = json.loads(requests.get(url).text)
       count = int(math.ceil(j["metadata"]["total"]/100))
 
+      #loop through the same API request, incrementing page number each time
       sc = []
       for x in range(0,count):
           url = "https://api.data.gov/ed/collegescorecard/v1/schools.json?api_key=3hZTlIbHmdMRcRWJ3NxdG8AvQPoW4Mdbilkm13At&school.operating=1&_sort=2013.earnings.10_yrs_after_entry.working_not_enrolled.mean_earnings:desc&_per_page=100&_page= %s &2013.earnings.10_yrs_after_entry.working_not_enrolled.mean_earnings__range=0..&2013.cost.attendance.academic_year__range=0..&fields=school.name,2013.earnings.10_yrs_after_entry.working_not_enrolled.mean_earnings,2013.cost.attendance.academic_year,2013.admissions.admission_rate.overall,2013.admissions.sat_scores.average.overall,2013.aid.median_debt.number.overall,2013.student.retention_rate.four_year.full_time"%(x)
@@ -49,6 +62,7 @@
           df = jn(j,"results")
           sc.append(df)
 
+      #concatenate each retreived dataset into a single Pandas DataFrame and save to file
       sc = pd.concat(sc, axis=0)
       print("reassigning index...")
       sc.reset_index(inplace=True)
@@ -56,6 +70,10 @@
       print("saved to file!")
     </code>
   </pre>
+
+  <p>
+    The above script retrieves
+  </p>
 
 </body>
 </html>
