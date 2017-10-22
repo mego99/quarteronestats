@@ -37,7 +37,6 @@
     This means that in order to harness the full potential of this dataset, I had to change my method.
     I decided to try working with Pandas, a data-handling library for Python.
   </p>
-
   <pre>
     <code class="language-python">
       import pandas as pd
@@ -70,10 +69,42 @@
       print("saved to file!")
     </code>
   </pre>
-
   <p>
-    The above script retrieves all of the data from the API and saves it into a Pandas DataFrame.
+    The above script retrieves all of the data from the API and saves it into an external file. 
+    Next, I took this data and made a picture with matplotlib.
   </p>
+  <img src="static/original.png"/>
+  <p>
+    <a href="http://www.statsmodels.org/dev/index.html">Statsmodels</a> has a handy <a href="http://www.statsmodels.org/dev/index.html">OLS</a>
+    (ordinary least squares) regression calculator, so it told me the R-squared value, 84.9%.
+    This value, coupled with the clearly exponential shape of the scatterplot, led me to believe that the data needed to be re-expressed
+    to fit a linear regression.
+  </p>
+  <pre>
+    <code>
+            OLS Regression Results
+      ==============================================================================
+      Dep. Variable:                   cost   R-squared:                       0.849
+      Model:                            OLS   Adj. R-squared:                  0.849
+      Method:                 Least Squares   F-statistic:                 1.908e+04
+      Date:                Sun, 22 Oct 2017   Prob (F-statistic):               0.00
+      Time:                        12:00:41   Log-Likelihood:                -36217.
+      No. Observations:                3384   AIC:                         7.244e+04
+      Df Residuals:                    3383   BIC:                         7.244e+04
+      Df Model:                           1
+      Covariance Type:            nonrobust
+      ==============================================================================
+      coef    std err          t      P>|t|      [0.025      0.975]
+      ------------------------------------------------------------------------------
+      earnings       0.6017      0.004    138.131      0.000       0.593       0.610
+      ==============================================================================
+      Omnibus:                      120.566   Durbin-Watson:                   1.770
+      Prob(Omnibus):                  0.000   Jarque-Bera (JB):              133.290
+      Skew:                           0.486   Prob(JB):                     1.14e-29
+      Kurtosis:                       2.967   Cond. No.                         1.00
+      ==============================================================================
+    </code>
+  </pre>
 
 </body>
 </html>
