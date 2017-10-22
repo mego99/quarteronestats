@@ -40,6 +40,7 @@ def makeScatterPlot(x,y,lineBool,xTitle,yTitle,groupBool): #explanatory and resp
     ybar = y.mean()
     b1 = r * (sy / sx)
     b0 = ybar - (b1 * xbar)
+    print(r, sx, sy, xbar, ybar, b1, b0)
 
     def regressionLine(x):
         return b0 + (b1 * x)
@@ -53,8 +54,8 @@ def makeScatterPlot(x,y,lineBool,xTitle,yTitle,groupBool): #explanatory and resp
     plt.xlabel(xTitle, size='smaller')
     plt.ylabel(yTitle, size='smaller')
 
-makeScatterPlot(sc[sc["ownership"] == 3]["costlog"],sc[sc["ownership"] == 3]["earningslog"],True,'Log of Cost of Attendance ($)','Log of Earnings, 10 Years After Entry into Institution ($)',False)
-
+# makeScatterPlot(sc[sc["ownership"] == 3]["costlog"],sc[sc["ownership"] == 3]["earningslog"],True,'Log of Cost of Attendance ($)','Log of Earnings, 10 Years After Entry into Institution ($)',False)
+makeScatterPlot(sc['cost'],sc['earnings'],True,'Log of Cost of Attendance ($)','Log of Earnings, 10 Years After Entry into Institution ($)',False)
 
 plt.title('Cost vs Earnings in US Higher Ed Institutions (Private For-profit)', size='smaller')
-plt.savefig('privatefp-line.png', dpi=150, bbox_inches='tight')
+# plt.savefig('privatefp-line.png', dpi=150, bbox_inches='tight')
