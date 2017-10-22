@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <title>Quarter One Stats Project</title>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
@@ -200,6 +201,30 @@ Kurtosis:                       2.203   Cond. No.                         1.00
     <img class="three" src="static/privatenp.png" />
     <img class="three" src="static/privatefp.png" />
   </div>
+  <p>
+    Now that they are isolated, the data can be re-expressed once again to better fit a linear model.
+  </p>
+
+  <h2>6: Plotting Residuals</h2>
+  <p>
+    To see what the data looks like, I decided to plot the residuals.
+  </p>
+  <pre>
+    <code>
+      def getRegression(x,y):
+          b = makeRegression(x,y) #makeRegression returns an array consisting of [b0,b1]
+          return b[0] + (b[1] * x)
+
+      def plotResid(x,y):
+          plt.scatter(x,getResid(x,y),1,c=darkblue)
+          plt.ylabel('Residuals')
+          plt.savefig('generated plots/resid2.png', dpi=150, bbox_inches='tight')
+    </code>
+  </pre>
+  <p>
+    Here are the residuals for the private non profit schools:
+  </p>
+  <img class="plot" src="static/residuals1.png"/>
   <h2>Conclusion</h2>
   <h2>A: Final <code>clean.py</code></h2>
   <pre>
@@ -215,9 +240,11 @@ Kurtosis:                       2.203   Cond. No.                         1.00
       sc.columns = ['index','admitrate','satscores','mediandebt','cost','earnings','retention','schoolname','ownership']
       sc.dropna()
 
-      #re-expression
       sc['costsqrt'] = sc['cost'].apply(lambda x:
           math.sqrt(x)
+      )
+      sc['logcostsq'] = sc['cost'].apply(lambda x:
+          math.log(x*x)
       )
       sc['costlog'] = sc['cost'].apply(lambda x:
           math.log(x)
@@ -225,16 +252,41 @@ Kurtosis:                       2.203   Cond. No.                         1.00
       sc['earningslog'] = sc['earnings'].apply(lambda x:
           math.log(x)
       )
+      sc['earningssq'] = sc['earnings'].apply(lambda x:
+          x*x
+      )
+      sc['earningssqrt'] = sc['earnings'].apply(lambda x:
+          math.sqrt(x)
+      )
+      sc['sqearningslog'] = sc['earningslog'].apply(lambda x:
+          x*x
+      )
+      sc['sqcostlog'] = sc['costlog'].apply(lambda x:
+          x * x
+      )
+      sc['earningslogsq'] = sc['earnings'].apply(lambda x:
+          math.log(x*x)
+      )
+      sc['costlogsqrt'] = sc['cost'].apply(lambda x:
+          math.log(math.sqrt(x))
+      )
+      sc['earningsloglog'] = sc['earningslog'].apply(lambda x:
+          math.log(x)
+      )
+      sc['sqrtcostlog'] = sc['costlog'].apply(lambda x:
+          math.sqrt(x)
+      )
+      sc['sqrtearningslog'] = sc['earningslog'].apply(lambda x:
+          math.sqrt(x)
+      )
 
-      #color variables
       darkblue='#4148e8'
       lightblue='#6f63f2'
       red='#ec5237'
       green='#43d1cd'
       colors = {1:red,2:lightblue,3:green}
 
-      #define function to make plot generation simpler
-      def makeScatterPlot(x,y,lineBool,xTitle,yTitle,groupBool): #x and y must be pandas Series, eg dataframe['column_name']
+      def makeRegression(x,y):
           model = sm.OLS(x,y,missing='drop')
           model = model.fit()
           print(model.summary())
@@ -246,27 +298,33 @@ Kurtosis:                       2.203   Cond. No.                         1.00
           ybar = y.mean()
           b1 = r * (sy / sx)
           b0 = ybar - (b1 * xbar)
-          print(r, sx, sy, xbar, ybar, b1, b0)
+          return [b0,b1]
 
-          def regressionLine(x): #define a simple a + bx function
-              return b0 + (b1 * x)
+      def getRegression(x,y):
+          b = makeRegression(x,y)
+          return b[0] + (b[1] * x)
 
-          #if you need to color-code by group
+      def getResid(x,y):
+          return y - getRegression(x,y)
+
+      def makeScatterPlot(x,y,lineBool,xTitle,yTitle,groupBool): #explanatory and response must be column names
           if (groupBool):
               plt.scatter(x,y,1,c=sc['ownership'].apply(lambda x: colors[x]))
           else:
-              plt.scatter(x,y,1,green)
-
-          #if you want a regression line
+              plt.scatter(x,y,1,darkblue)
           if (lineBool):
-              plt.plot(x, regressionLine(x), c='#079799', aa=True)
+              plt.plot(x, getRegression(x,y), c='#079799', aa=True)
           plt.xlabel(xTitle, size='smaller')
           plt.ylabel(yTitle, size='smaller')
 
-      makeScatterPlot(sc['costlog'],sc['earningslog'],True,'Log of Cost of Attendance ($)','Log of Earnings, 10 Years After Entry into Institution ($)',False)
+      plt.title('Cost vs Earnings in US Higher Ed Institutions (Private For-profit)', size='smaller')
+      plt.savefig('generated plots/test2.png', dpi=150, bbox_inches='tight')
 
-      plt.title('Cost vs Earnings in US Higher Ed Institutions', size='smaller')
-      plt.savefig('file.png', dpi=150, bbox_inches='tight') #save to file
+      def plotResid(x,y):
+          plt.scatter(x,getResid(x,y),1,c=darkblue)
+          plt.ylabel('Residuals')
+          plt.savefig('generated plots/resid2.png', dpi=150, bbox_inches='tight')
+
     </code>
   </pre>
 </body>
