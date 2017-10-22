@@ -11,3 +11,12 @@ body {
   font-family: 'Theinhardt', sans-serif;
   margin:10vh 10vw 10vh 10vw;
 }
+img.plot {
+  width:60vw;
+  margin: auto;
+  display: block;
+}
+svg {
+  margin: auto;
+  display: block;
+}
