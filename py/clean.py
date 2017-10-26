@@ -5,7 +5,6 @@ import statsmodels.api as sm
 import math
 
 sc = pd.read_pickle('data.pkl')
-print(sc.columns)
 sc.columns = ['index','admitrate','satscores','mediandebt','cost','earnings','retention','schoolname','ownership']
 sc.dropna()
 
@@ -67,6 +66,7 @@ def makeRegression(x,y):
     ybar = y.mean()
     b1 = r * (sy / sx)
     b0 = ybar - (b1 * xbar)
+    print(r, sx, sy, xbar, ybar, b1, b0)
     return [b0,b1]
 
 def getRegression(x,y):
@@ -92,9 +92,10 @@ def makeScatterPlot(x,y,lineBool,xTitle,yTitle,groupBool): #explanatory and resp
 # plt.title('Cost vs Earnings in US Higher Ed Institutions (Private For-profit)', size='smaller')
 # plt.savefig('generated plots/test2.png', dpi=150, bbox_inches='tight')
 
-def plotResid(x,y):
+def plotResid(x,y,xTitle):
     plt.scatter(x,getResid(x,y),1,c=darkblue)
-    plt.ylabel('Residuals')
-    plt.savefig('generated plots/residuals.png', dpi=150, bbox_inches='tight')
+    plt.ylabel('Residuals', size='smaller')
+    plt.xlabel(xTitle, size='smaller')
+    plt.savefig('generated plots/residuals5.png', dpi=150, bbox_inches='tight')
 
-plotResid(sc[sc["ownership"] == 2]["costlog"],sc[sc["ownership"] == 2]["earningslog"])
+plotResid(sc[sc["ownership"] == 2]["cost"],sc[sc["ownership"] == 2]["earningslog"],'Square Root of Cost')
