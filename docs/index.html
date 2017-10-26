@@ -19,14 +19,20 @@
 </head>
 <body>
   <h1>AP Stats Quarter One Project</h1>
-  <span><a href="https://github.com/mego99/quarteronestats">Github</a></span>
-  <h2>1: Data Selection and Initial Exploration</h2>
+  <span class="only-print">view online: https://mego99.github.io/quarteronestats/</span>
+  <span class="no-print"><a href="https://github.com/mego99/quarteronestats">Github</a> <a href="javascript:window.print()">Print This Page</a></span>
+  <h2 class="no-break">1: Data Selection and Initial Exploration</h2>
   <p>
     As a soon-to-be college freshman (hopefully!),
     I've been spending a fair share of my time scouring university websites, scanning colorful pamphlets, and making big decisions.
     When I stumbled upon the <a href="https://collegescorecard.ed.gov/data/documentation/">US College Scorecard</a>, I knew I had found my goldmine.
     This data, collected and compiled by the US Department of Education, is an extremely comprehensive and well-documented dataset freely available to
     the public. It contains information on colleges, their student body, cost of attendance, financial aid, and earnings after graduation.
+  </p>
+  <p>
+    Although the dataset includes a wide range of variables, I decided to focus on the relationship between cost of attendance and earnings after college.
+    It made sense that they would be positively associated; from everything I've read about colleges, expensive private schools tend to churn out
+    students who get hired into big, rich corporations. Using this dataset, I wanted to see if this was really the case.
   </p>
   <p>
     At first I tried to work through the raw downloaded data, but it became evident very quickly that this was too big of a dataset to handle.
@@ -44,15 +50,8 @@
   <h2>2: Working with a Larger Dataset</h2>
   <pre>
     <code>
-      import pandas as pd
-      from pandas.io.json import json_normalize as jn
-      import requests
-      import json
-      import math
-      import matplotlib.pyplot as plt
-
       #get data through API in order to compute the number of iterations necessary
-      url = "https://api.data.gov/ed/collegescorecard/v1/schools.json?api_key=3hZTlIbHmdMRcRWJ3NxdG8AvQPoW4Mdbilkm13At&school.operating=1&_sort=2013.earnings.10_yrs_after_entry.working_not_enrolled.mean_earnings:desc&_per_page=1&_page= %s &2013.earnings.10_yrs_after_entry.working_not_enrolled.mean_earnings__range=0..&2013.cost.attendance.academic_year__range=0..&fields=school.name"%(0)
+      url = "https://api.data.gov/ed/collegescorecard/v1/schools.json?api_key=XXX&school.operating=1&_sort=2013.earnings.10_yrs_after_entry.working_not_enrolled.mean_earnings:desc&_per_page=1&_page= %s &2013.earnings.10_yrs_after_entry.working_not_enrolled.mean_earnings__range=0..&2013.cost.attendance.academic_year__range=0..&fields=school.name"%(0)
       print("retrieving data count...")
       j = json.loads(requests.get(url).text)
       count = int(math.ceil(j["metadata"]["total"]/100))
@@ -60,7 +59,7 @@
       #loop through the same API request, incrementing page number each time
       sc = []
       for x in range(0,count):
-          url = "https://api.data.gov/ed/collegescorecard/v1/schools.json?api_key=3hZTlIbHmdMRcRWJ3NxdG8AvQPoW4Mdbilkm13At&school.operating=1&_sort=2013.earnings.10_yrs_after_entry.working_not_enrolled.mean_earnings:desc&_per_page=100&_page= %s &2013.earnings.10_yrs_after_entry.working_not_enrolled.mean_earnings__range=0..&2013.cost.attendance.academic_year__range=0..&fields=school.name,2013.earnings.10_yrs_after_entry.working_not_enrolled.mean_earnings,2013.cost.attendance.academic_year,2013.admissions.admission_rate.overall,2013.admissions.sat_scores.average.overall,2013.aid.median_debt.number.overall,2013.student.retention_rate.four_year.full_time"%(x)
+          url = "https://api.data.gov/ed/collegescorecard/v1/schools.json?api_key=XXX&school.operating=1&_sort=2013.earnings.10_yrs_after_entry.working_not_enrolled.mean_earnings:desc&_per_page=100&_page= %s &2013.earnings.10_yrs_after_entry.working_not_enrolled.mean_earnings__range=0..&2013.cost.attendance.academic_year__range=0..&fields=school.name,2013.earnings.10_yrs_after_entry.working_not_enrolled.mean_earnings,2013.cost.attendance.academic_year,2013.admissions.admission_rate.overall,2013.admissions.sat_scores.average.overall,2013.aid.median_debt.number.overall,2013.student.retention_rate.four_year.full_time"%(x)
           print("retrieving data points %s to %s..."%(x*100,(x*100)+100))
           j = json.loads(requests.get(url).text)
           df = jn(j,"results")
@@ -98,15 +97,6 @@
       Df Residuals:                    3383   BIC:                         7.244e+04
       Df Model:                           1
       Covariance Type:            nonrobust
-      ==============================================================================
-      coef    std err          t      P>|t|      [0.025      0.975]
-      ------------------------------------------------------------------------------
-      earnings       0.6017      0.004    138.131      0.000       0.593       0.610
-      ==============================================================================
-      Omnibus:                      120.566   Durbin-Watson:                   1.770
-      Prob(Omnibus):                  0.000   Jarque-Bera (JB):              133.290
-      Skew:                           0.486   Prob(JB):                     1.14e-29
-      Kurtosis:                       2.967   Cond. No.                         1.00
       ==============================================================================
     </code>
   </pre>
@@ -211,41 +201,75 @@ Kurtosis:                       2.203   Cond. No.                         1.00
   </p>
   <pre>
     <code>
-      def getRegression(x,y):
-          b = makeRegression(x,y) #makeRegression returns an array consisting of [b0,b1]
+      def getRegression(x,y): #a function that computes the y-value given an a+bx formula
+          b = makeRegression(x,y) #the makeRegression function returns an array [b0,b1]
           return b[0] + (b[1] * x)
 
-      def plotResid(x,y):
+      def getResid(x,y): #get residuals
+          return y - getRegression(x,y)
+
+      def plotResid(x,y,xTitle,title): #plot residuals and save to file
           plt.scatter(x,getResid(x,y),1,c=darkblue)
-          plt.ylabel('Residuals')
-          plt.savefig('generated plots/resid2.png', dpi=150, bbox_inches='tight')
+          plt.ylabel('Residuals', size='smaller')
+          plt.xlabel(xTitle, size='smaller')
+          plt.title(title)
+          plt.savefig('generated plots/residuals.png', dpi=150, bbox_inches='tight')
     </code>
   </pre>
   <p>
     Here are the residuals for the private non profit schools:
   </p>
   <img class="plot" src="static/residuals1.png"/>
-  <h2>Conclusion</h2>
-  <h2>A: Final <code>clean.py</code></h2>
+  <p>
+    Because the residual plot is not random at all, I attempted to re-express the data once again.
+    By taking an unchanged cost against the log of earnings, I got the following:
+  </p>
+  <img class="plot" src="static/residuals2.png"/>
+  <p>
+    Although it still shows a very obvious pattern, this was the best I was able to do in terms of re-expression.
+    The final regression formula for private schools:
+
+    $$r: 0.95 $$
+    $$X_s: 12480.09$$
+    $$Y_s: 0.32$$
+    $$\overline x: 36476.04$$
+    $$\overline y: 10.68$$
+    $$b_1: 2.46\times10^{-5}$$
+    $$b_0: 9.78$$
+    $$\widehat{\text{log}(earnings)} = 9.78 + (2.46\times10^{-5})(cost)$$
+  </p>
+  <h2>7: Conclusion</h2>
+  <p>
+    As I had predicted, graduates of colleges with higher costs of attendance generally tended to earn more after graduation.
+    This relationship seemed to be exponential, overall; when analyzed separately by school ownership,
+    the relationship was somewhat more linear. Between public, private for profit, and private non profit schools,
+    the relationship differed slightly; there was a bigger disparity with cost of attendance (than with earnings) between these categories.
+  </p>
+  <p>
+    Regarding the data investigation process, I learned a lot about how to use Pandas and Matplotlib.
+    This also felt like a reflection of the "make a picture" rule because for the first time,
+    I really had to make a picture at every step, since there's no way to simply analyze 3000+ data points just by looking at the numbers.
+    I enjoyed the process of having to reshape my goals and next steps after each picture and look forward to more projects in the future.
+  </p>
+  <!-- <h2></h2>
+  <canvas></canvas> -->
+  <h2>A: Final Code</h2>
   <pre>
     <code>
+      #import statements
       import pandas as pd
       import matplotlib.pyplot as plt
       from pandas.core import datetools
       import statsmodels.api as sm
       import math
 
+      #import data (saved earlier into pickle) and assign simpler column names
       sc = pd.read_pickle('data.pkl')
       print(sc.columns)
       sc.columns = ['index','admitrate','satscores','mediandebt','cost','earnings','retention','schoolname','ownership']
-      sc.dropna()
+      sc.dropna() #drop rows with missing values
 
-      sc['costsqrt'] = sc['cost'].apply(lambda x:
-          math.sqrt(x)
-      )
-      sc['logcostsq'] = sc['cost'].apply(lambda x:
-          math.log(x*x)
-      )
+      #add columns with re-expressed data
       sc['costlog'] = sc['cost'].apply(lambda x:
           math.log(x)
       )
@@ -253,13 +277,14 @@ Kurtosis:                       2.203   Cond. No.                         1.00
           math.log(x)
       )
 
+      #define some variables
       darkblue='#4148e8'
       lightblue='#6f63f2'
       red='#ec5237'
       green='#43d1cd'
       colors = {1:red,2:lightblue,3:green}
 
-      def makeRegression(x,y):
+      def makeRegression(x,y): #create linear regression and return b1, b0
           model = sm.OLS(x,y,missing='drop')
           model = model.fit()
           print(model.summary())
@@ -273,31 +298,30 @@ Kurtosis:                       2.203   Cond. No.                         1.00
           b0 = ybar - (b1 * xbar)
           return [b0,b1]
 
-      def getRegression(x,y):
+      def getRegression(x,y): #return y value given b1, b0 (a+bx)
           b = makeRegression(x,y)
           return b[0] + (b[1] * x)
 
-      def getResid(x,y):
+      def getResid(x,y): #return residuals
           return y - getRegression(x,y)
 
-      def makeScatterPlot(x,y,lineBool,xTitle,yTitle,groupBool): #explanatory and response must be column names
+      #generate a scatterplot and save to file
+      def makeScatterPlot(x,y,lineBool,xTitle,yTitle,groupBool): #x and y must be column names
           if (groupBool):
-              plt.scatter(x,y,1,c=sc['ownership'].apply(lambda x: colors[x]))
+              plt.scatter(x,y,1,c=sc['ownership'].apply(lambda x: colors[x])) #this is specific to this case! not general
           else:
               plt.scatter(x,y,1,darkblue)
           if (lineBool):
               plt.plot(x, getRegression(x,y), c='#079799', aa=True)
           plt.xlabel(xTitle, size='smaller')
           plt.ylabel(yTitle, size='smaller')
+          plt.title('Cost vs Earnings in US Higher Ed Institutions', size='smaller')
+          plt.savefig('generated plots/plot.png', dpi=150, bbox_inches='tight')
 
-      plt.title('Cost vs Earnings in US Higher Ed Institutions (Private For-profit)', size='smaller')
-      plt.savefig('generated plots/test2.png', dpi=150, bbox_inches='tight')
-
-      def plotResid(x,y):
+      def plotResid(x,y): #generate a residual plot and save to file
           plt.scatter(x,getResid(x,y),1,c=darkblue)
           plt.ylabel('Residuals')
-          plt.savefig('generated plots/resid2.png', dpi=150, bbox_inches='tight')
-
+          plt.savefig('generated plots/residuals.png', dpi=150, bbox_inches='tight')
     </code>
   </pre>
 </body>
