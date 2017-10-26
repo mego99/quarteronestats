@@ -6,34 +6,13 @@
   font-family: 'Theinhardt';
   src: url("fonts/theinhardtreg-webfont.woff") format("woff");
 }
-
 body {
   font-family: 'Theinhardt', sans-serif;
   margin:10vh 10vw 10vh 10vw;
 }
-img.plot {
-  width:60vw;
-  margin: auto;
-  display: block;
-}
-svg {
-  margin: auto;
-  display: block;
-}
-h1 {
-  font-size: 3em;
-  margin-bottom: 0;
-}
-h2 {
-  font-size: 1.75em;
-}
 a {
   color:black;
   text-decoration: underline;
-}
-a:hover {
-  color:#6f63f2;
-  transition-duration: 0.2s;
 }
 span {
   text-align: left!important;
@@ -44,4 +23,70 @@ img.three {
 div.three-plots {
   margin: auto;
   text-align: center;
+}
+img.plot {
+  width:60vw;
+  margin: auto;
+  display: block;
+}
+svg {
+  margin: auto;
+  display: block;
+}
+@media print {
+  .no-print {
+    display: none;
+  }
+  h1 {
+    margin: 0;
+  }
+  img.plot {
+    width:50vw;
+  }
+  pre, code {
+    padding:0;
+    margin:0;
+    display: block;
+  }
+  pre:first-line {
+    line-height: 0px;
+  }
+  body {
+    margin:1.2vh;
+  }
+  h2 {
+    page-break-before: always;
+  }
+  h2.no-break {
+    page-break-before: avoid;
+  }
+  pre, p {
+    page-break-inside: avoid;
+  }
+}
+@media screen{
+  .only-print {
+    display: none;
+  }
+  img.plot {
+    width:60vw;
+    margin: auto;
+    display: block;
+  }
+  svg {
+    margin: auto;
+    display: block;
+  }
+  h1 {
+    font-size: 3em;
+    margin-bottom: 0;
+  }
+  h2 {
+    font-size: 1.75em;
+  }
+  a:hover {
+    color:#6f63f2;
+    transition-duration: 0.2s;
+  }
+
 }
