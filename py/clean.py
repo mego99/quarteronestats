@@ -8,44 +8,11 @@ sc = pd.read_pickle('data.pkl')
 sc.columns = ['index','admitrate','satscores','mediandebt','cost','earnings','retention','schoolname','ownership']
 sc.dropna()
 
-sc['costsqrt'] = sc['cost'].apply(lambda x:
-    math.sqrt(x)
-)
-sc['logcostsq'] = sc['cost'].apply(lambda x:
-    math.log(x*x)
-)
 sc['costlog'] = sc['cost'].apply(lambda x:
     math.log(x)
 )
 sc['earningslog'] = sc['earnings'].apply(lambda x:
     math.log(x)
-)
-sc['earningssq'] = sc['earnings'].apply(lambda x:
-    x*x
-)
-sc['earningssqrt'] = sc['earnings'].apply(lambda x:
-    math.sqrt(x)
-)
-sc['sqearningslog'] = sc['earningslog'].apply(lambda x:
-    x*x
-)
-sc['sqcostlog'] = sc['costlog'].apply(lambda x:
-    x * x
-)
-sc['earningslogsq'] = sc['earnings'].apply(lambda x:
-    math.log(x*x)
-)
-sc['costlogsqrt'] = sc['cost'].apply(lambda x:
-    math.log(math.sqrt(x))
-)
-sc['earningsloglog'] = sc['earningslog'].apply(lambda x:
-    math.log(x)
-)
-sc['sqrtcostlog'] = sc['costlog'].apply(lambda x:
-    math.sqrt(x)
-)
-sc['sqrtearningslog'] = sc['earningslog'].apply(lambda x:
-    math.sqrt(x)
 )
 
 darkblue='#4148e8'
@@ -66,7 +33,6 @@ def makeRegression(x,y):
     ybar = y.mean()
     b1 = r * (sy / sx)
     b0 = ybar - (b1 * xbar)
-    print(r, sx, sy, xbar, ybar, b1, b0)
     return [b0,b1]
 
 def getRegression(x,y):
